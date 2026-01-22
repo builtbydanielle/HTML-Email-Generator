@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HTML Email Generator</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #f9fafb;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #7577ef;
+      --line: #e5e7eb;
+    }
+    
+    body.dark-mode {
+      --bg: #0b0e11;
+      --panel: #0f1318;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #7577ef;
+      --line: #1f2937;
+    }
+    
+    html, body { margin:0; padding:0; height:100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Segoe UI, Segoe, Roboto, Helvetica, Arial, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .app {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    h1 { font-size: 20px; margin: 0; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .field { display: flex; flex-direction: column; margin-bottom: 12px; }
+    label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    input[type="text"], input[type="url"], textarea {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    .small { font-size: 12px; color: var(--muted); }
+    .actions {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+    }
+    button, .link-btn {
+      background: var(--accent);
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button.secondary {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    #themeToggle {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    iframe {
+      width: 100%;
+      height: 70vh;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: white;
+    }
+    .monospace { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .footer {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    @media (max-width: 1024px) {
+      .app { grid-template-columns: 1fr; }
+      iframe { height: 60vh; }
+    }
+
+    /* spinner */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--muted);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.8s linear infinite;
+      vertical-align: -2px;
+      margin-left: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="app">
+    <header>
+      <h1>HTML Email Generator</h1>
+      <button id="themeToggle">☀️ Light Mode</button>
+    </header>
+
+    <section class="panel">
+      <div class="field">
+        <label>Subject</label>
+        <input id="subject" type="text" placeholder="Important Company Update" />
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Audience for this email:</label>
+          <input id="audience" type="text" placeholder="Current clients and partners" />
+        </div>
+        <div class="field">
+          <label>Tone</label>
+          <input id="tone" type="text" placeholder="clear, friendly, professional" value="clear, friendly, professional" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Goal of this email:</label>
+        <input id="goal" type="text" placeholder="Example: Inform clients about feature changes and next steps" />
+      </div>
+
+      <div style="background: #6426e0; border: 2px solid #ffffff; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          
+          <strong style="color: #ffffff; font-size: 16px;">DATE REMINDER</strong>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #ffffff; line-height: 1.4;">
+          Always specify exact dates and times! Examples: "January 25, 2026 at 10:00 PM EST" or "December 24-25, 2025"
+        </p>
+      </div>
+
+      <div class="field">
+        <label>Key points (one per line)</label>
+        <textarea id="keypoints" placeholder="Examples:
+- System update on January 25, 2026 at 10:00 PM EST
+- Office closed December 24-25, 2025
+- New feature launching February 1, 2026
+- Follow-up meeting scheduled for next Tuesday at 2:00 PM
+
+IMPORTANT: Include specific dates and times for all events!
+Use clear, to-the-point language."></textarea>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Company name</label>
+          <input id="company" type="text" value="Your Company" placeholder="Your Company" />
+
+        </div>
+        <div class="field">
+          <label>Logo URL</label>
+          <input id="logoUrl" type="url" placeholder="https://i.imgur.com/FkZRRg9.png" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Sender signature</label>
+          <input id="sender" type="text" value="The Team" placeholder="The Team" />
+        </div>
+        <div class="field">
+          <label>Extra guidance to the model (optional)</label>
+          <input id="extra" type="text" placeholder="Keep paragraph length short. Emphasize clarity." />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Phrases to use (comma-separated)</label>
+          <input id="phrasesUse" type="text" />
+        </div>
+        <div class="field">
+          <label>Phrases to avoid (comma-separated)</label>
+          <input id="phrasesAvoid" type="text" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>CTA label (optional)</label>
+          <input id="ctaLabel" type="text" />
+        </div>
+        <div class="field">
+          <label>CTA URL (optional)</label>
+          <input id="ctaUrl" type="url" />
+        </div>
+      </div>
+
+      <details>
+        <summary style="cursor:pointer; margin:8px 0;">Optional: paste your own base template HTML</summary>
+        <div class="field">
+          <label class="small">Leave blank to use the built-in 600px Segoe template with logo header and footer.</label>
+          <textarea id="templateOverride" class="monospace" placeholder="Paste full HTML with {{BODY_HTML}} placeholder"></textarea>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button id="generateBtn">Generate Email</button>
+        <button id="copyBtn" class="secondary" disabled>Copy HTML</button>
+        <button id="downloadBtn" class="secondary" disabled>Download .html</button>
+      </div>
+      <div id="status" class="small" style="margin-top:8px;"></div>
+      <span id="statusSpinner" class="spinner" style="display:none;"></span>
+    </section>
+
+    <section class="panel">
+      <div class="field">
+        <label>Live preview</label>
+        <iframe id="preview"></iframe>
+      </div>
+      <div class="field">
+        <label class="small">Raw HTML (read only)</label>
+        <textarea id="rawHtml" class="monospace" readonly style="min-height:160px;"></textarea>
+      </div>
+    </section>
+
+    <div class="footer">Email Generator</div><br>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const previewFrame = $("preview");
+    const rawHtml = $("rawHtml");
+    const statusEl = $("status");
+    const generateBtn = $("generateBtn");
+    const copyBtn = $("copyBtn");
+    const downloadBtn = $("downloadBtn");
+    const themeToggle = $("themeToggle");
+
+    // Theme toggle
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      const isDark = document.body.classList.contains("dark-mode");
+      themeToggle.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") {
+      document.body.classList.remove("dark-mode");
+      themeToggle.textContent = "🌙 Dark Mode";
+    }
+
+    function setStatus(msg, isError = false, loading = false) {
+      statusEl.textContent = msg || "";
+      statusEl.style.color = isError ? "#ef4444" : "var(--muted)";
+      const spinner = document.getElementById("statusSpinner");
+      if (spinner) spinner.style.display = loading ? "inline-block" : "none";
+    }
+
+    function writePreview(html) {
+      const doc = previewFrame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    }
+
+    async function generate() {
+      setStatus("Generating...", false, true);
+      generateBtn.disabled = true;
+
+      const keyPoints = $("keypoints").value
+        .split("\n")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const payload = {
+        subject: $("subject").value || "Important update",
+        audience: $("audience").value,
+        goal: $("goal").value,
+        tone: $("tone").value || "friendly, professional",
+        keyPoints,
+        brand: {
+          company: $("company").value || "Your Company",
+          logoUrl: $("logoUrl").value || "https://i.imgur.com/FkZRRg9.png"
+        },
+        sender: $("sender").value || "The Team",
+        cta: $("ctaLabel").value
+          ? { label: $("ctaLabel").value, url: $("ctaUrl").value || "#" }
+          : null,
+        extra: $("extra").value,
+        brandVoice: {
+          use: $("phrasesUse").value || "",
+          avoid: $("phrasesAvoid").value || ""
+        },
+        baseTemplateHtml: $("templateOverride").value || null
+      };
+
+      try {
+        const res = await fetch("http://localhost:4000/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Server returned a non-200 response");
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "Generation failed");
+
+        writePreview(data.html);
+        rawHtml.value = data.html;
+
+        copyBtn.disabled = false;
+        downloadBtn.disabled = false;
+        setStatus("Done. Preview updated.", false, false);
+      } catch (e) {
+        console.error(e);
+        setStatus("Error: " + e.message, true, false);
+      } finally {
+        generateBtn.disabled = false;
+      }
+    }
+
+    generateBtn.addEventListener("click", generate);
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(rawHtml.value || "");
+        setStatus("HTML copied to clipboard.");
+      } catch {
+        setStatus("Copy failed. Select and copy manually.", true);
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const blob = new Blob([rawHtml.value || ""], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const subj = $("subject").value || "email";
+      a.download = subj.replace(/[^a-z0-9\-]+/gi, "_").toLowerCase() + ".html";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setStatus("Downloaded HTML file.");
+    });
+
+    // initial empty preview
+    writePreview("<html><body style='font-family:Segoe UI,Segoe,Roboto,Helvetica,Arial,sans-serif;padding:20px;color:#111'>Your email preview will appear here after generation.</body></html>");
+  </script>
+</body>
+</html>
