@@ -67,9 +67,9 @@ Wait for it to finish (takes about 30 seconds).
 3. Replace the text after `GEMINI_API_KEY=` with your API key from Step 2
 4. Save the file
 
-Example:
+Example (this is a non working example of what an API key looks like):
 ```
-GEMINI_API_KEY=AIzaSyBtlPBGOZA51JGIhBOE7oAu-HkRpGxGRWo
+GEMINI_API_KEY=AIzaSyBtlPBGOZA51JGIhBOE7oAu-HkRpGxGRTg
 ```
 
 ## Step 6: Start the Server
